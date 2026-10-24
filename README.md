@@ -52,34 +52,38 @@ Switching a choice does not load a LoRA or change steps, CFG, sampler, SLG, or m
 
 ## MOSS-Image SFT + DMD LoRA example
 
-| Setting | Example / starting point |
+| Setting | Project recommendation / starting point |
 |---|---|
 | Model | [MOSS-Image SFT](https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT) |
 | Acceleration LoRA | [lodestones/MOSS-Image-SFT-8-steps-dmd](https://huggingface.co/lodestones/MOSS-Image-SFT-8-steps-dmd), specifically [`lora_latest.safetensors`](https://huggingface.co/lodestones/MOSS-Image-SFT-8-steps-dmd/blob/main/lora_latest.safetensors) |
-| LoRA strength | **0.7 as a recommended starting point**, not a mandatory or universally optimal value |
-| Sampler | **`dpmpp_sde`** or **`dpmpp_2m_sde`** |
+| LoRA strength | **0.8 as this project's recommended starting point**, adjustable rather than mandatory |
+| Sampler | **`dpmpp_sde`** |
 | Scheduler | **MOSS Shift Scheduler**; compare the other two choices if useful |
-| Steps | **Start around 8 and adjust**; not fixed to 8 |
+| Steps | **Start at 10 and adjust**; not fixed to 10 |
 | CFG | **3.0** |
 | Denoise | **1.0** for this text-to-image example |
 
-The LoRA author also recommends strength 0.7 for `lora_latest.safetensors`.
+These project recommendations follow the latest user-provided use case: 10 steps and LoRA strength 0.8.
+The LoRA author recommends strength 0.7 for `lora_latest.safetensors`; that is the upstream reference,
+not the project's current 0.8 recommendation. Adjust the strength to suit the output.
 Do not confuse it with the separate `lora.safetensors` file and its different strength recommendation.
 
 This follows the combinations in [this sampler comparison report](https://www.reddit.com/r/StableDiffusion/comments/1x86z9k/moss_image_samplers_and_schedulers/):
 `dpmpp_sde / radiance_shift` and `dpmpp_2m_sde / radiance_shift`.
 The report evaluates prompt adherence but does **not** state the actual generation step count.
-The 8-step example above comes from this project's user-provided use case.
+The 10-step recommendation above comes from this project's latest user-provided use case.
 Good prompt adherence has also been reported in that use case; this is an observation, not a controlled benchmark.
-The supplied screenshots confirm `dpmpp_sde`, 8 steps, CFG 3 and LoRA strength 0.70.
-The second sampler is an alternative from the referenced report, not an independently verified GPU comparison here.
+The latest supplied screenshots confirm MOSS Shift Scheduler, `dpmpp_sde`, 10 steps, CFG 3,
+denoise 1.0 and LoRA strength 0.80.
+`dpmpp_2m_sde` remains an alternative from the referenced report, not the primary project recommendation
+or an independently verified GPU comparison here.
 
 ## Usage and changes from upstream
 
 - In **KSampler**, choose one of the three full names under scheduler. KSampler's own default selection is unchanged.
 - With the dedicated **MOSS Shift Scheduler** node, connect the same MODEL used by the sampler,
   and connect SIGMAS to SamplerCustom / SamplerCustomAdvanced.
-  The node defaults to MOSS Shift Scheduler, 25 steps and denoise 1.0; the example's 8 steps are set manually.
+  The node defaults to MOSS Shift Scheduler, 25 steps and denoise 1.0; the recommended 10 steps are set manually.
 - Denoise below 1.0 uses the tail of a longer schedule; zero returns an empty schedule.
 - Some samplers (`dpm_2`, `dpm_2_ancestral`, `uni_pc`, `uni_pc_bh2`) add Core penultimate-sigma handling.
   Their Core KSampler path can differ from passing dedicated SIGMAS directly.
@@ -171,33 +175,37 @@ MOSS Shift Schedulerを基準に選びます。名前は画質の順位ではあ
 
 ### MOSS-Image SFT＋DMD高速化LoRAの使用例
 
-| 項目 | 設定例・推奨の開始値 |
+| 項目 | 本プロジェクト推奨の開始値 |
 |---|---|
 | モデル | [MOSS-Image SFT](https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT) |
 | 高速化LoRA | [lodestones/MOSS-Image-SFT-8-steps-dmd](https://huggingface.co/lodestones/MOSS-Image-SFT-8-steps-dmd) の [`lora_latest.safetensors`](https://huggingface.co/lodestones/MOSS-Image-SFT-8-steps-dmd/blob/main/lora_latest.safetensors) |
-| LoRA強度 | **0.7は推奨の開始値**。固定・必須・全環境での最適値ではありません |
-| サンプラー | **`dpmpp_sde`** または **`dpmpp_2m_sde`** |
+| LoRA強度 | **0.8を本プロジェクトの推奨開始値に**。固定・必須ではなく調整可能です |
+| サンプラー | **`dpmpp_sde`** |
 | スケジューラー | **MOSS Shift Scheduler**を基準に、ほかの2方式とも比較可能 |
-| ステップ | **8を起点に調整**。8固定ではありません |
+| ステップ | **10を起点に調整**。10固定ではありません |
 | CFG | **3.0** |
 | denoise | **1.0**（txt2imgの例） |
 
-配布元も`lora_latest.safetensors`の強度0.7を推奨しています。
+本プロジェクトの推奨値は、最新のユーザー使用例に合わせた10 steps・LoRA強度0.8です。
+配布元の`lora_latest.safetensors`推奨強度は0.7で、こちらは配布元の参考値として区別します。
+本プロジェクトの推奨は0.8ですが、出力に合わせて調整してください。
 別ファイル`lora.safetensors`の推奨強度とは区別してください。
 
 この使用例は[サンプラー比較投稿](https://www.reddit.com/r/StableDiffusion/comments/1x86z9k/moss_image_samplers_and_schedulers/)の
 `dpmpp_sde / radiance_shift`、`dpmpp_2m_sde / radiance_shift`に準拠しています。
 元投稿ではプロンプト追従性が評価されていますが、実際の生成ステップ数は不明です。
-上記の8ステップは今回のユーザー使用例に基づきます。
+上記の10ステップは最新のユーザー使用例に基づきます。
 その実使用でも「プロンプトへの追従性がよい」との評価がありましたが、比較ベンチマークではありません。
-提供画像ではdpmpp_sde、8 steps、CFG 3、LoRA強度0.70を確認しています。
-dpmpp_2m_sdeは参考投稿にある代替候補で、こちらで独立したGPU比較を行ったものではありません。
+最新の提供画像ではMOSS Shift Scheduler、dpmpp_sde、10 steps、CFG 3、denoise 1.0、
+LoRA強度0.80を確認しています。
+dpmpp_2m_sdeは参考投稿にある代替候補として残しますが、本プロジェクトの主な推奨はdpmpp_sdeです。
+こちらで独立したGPU比較を行ったものではありません。
 
 ### 使用方法・元実装との差
 
 - KSamplerではschedulerから上記のフルネームを選びます。KSampler自身の初期選択は変更しません。
 - 専用ノードでは同じMODELをサンプラーにも接続し、SIGMASをSamplerCustom / SamplerCustomAdvancedへ渡します。
-  ノード初期値はMOSS Shift Scheduler、25 steps、denoise=1.0です。使用例の8 stepsは手動設定します。
+  ノード初期値はMOSS Shift Scheduler、25 steps、denoise=1.0です。推奨の10 stepsは手動設定します。
 - denoiseを小さくすると長いスケジュールの末尾を使います。0は空のSIGMASです。
 - `dpm_2`、`dpm_2_ancestral`、`uni_pc`、`uni_pc_bh2` ではCoreの追加末尾処理があるため、
   専用SIGMASを渡す経路との差があります。時刻の重複除去で出力段数が減る場合もあります。

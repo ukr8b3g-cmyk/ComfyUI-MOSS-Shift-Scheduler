@@ -12,3 +12,6 @@
 - Verified CPU numerical compatibility and offline workflow-name migration.
 - Practical use has focused on MOSS-Image SFT with the DMD acceleration LoRA.
   SFT without acceleration LoRA has had very limited practical testing; other models are unverified.
+- Updated the documented project starting point from 8 steps / LoRA strength 0.7 to
+  10 steps / strength 0.8, with dpmpp_sde, CFG 3, MOSS Shift Scheduler and denoise 1.0.
+  The upstream LoRA author's 0.7 recommendation remains separately attributed.
