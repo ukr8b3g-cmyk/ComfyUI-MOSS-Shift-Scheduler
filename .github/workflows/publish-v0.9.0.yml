@@ -1,0 +1,78 @@
+name: Publish v0.9.0
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-v0.9.0.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-v0.9.0
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.repository == 'ukr8b3g-cmyk/ComfyUI-MOSS-Shift-Scheduler'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Publish the verified v0.9.0 source commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+          
+          repo = os.environ["GITHUB_REPOSITORY"]
+          assert repo == "ukr8b3g-cmyk/ComfyUI-MOSS-Shift-Scheduler"
+          tag = "v0.9.0"
+          target = "660072494759bc403e804f22f25784b981d35071"
+          headers = {
+              "Authorization": "Bearer " + os.environ["GH_TOKEN"],
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "Content-Type": "application/json",
+          }
+          def api(path, payload=None):
+              data = None if payload is None else json.dumps(payload).encode()
+              req = urllib.request.Request("https://api.github.com/repos/" + repo + path,
+                                           data=data, headers=headers)
+              with urllib.request.urlopen(req, timeout=60) as response:
+                  return json.load(response)
+          
+          try:
+              release = api("/releases/tags/" + tag)
+          except urllib.error.HTTPError as error:
+              if error.code != 404:
+                  raise
+              release = None
+          
+          if release is None:
+              release = api("/releases", {
+                  "tag_name": tag,
+                  "target_commitish": target,
+                  "name": "ComfyUI MOSS Shift Scheduler v0.9.0",
+                  "body": "[日本語](#日本語)\n\nInitial release of **ComfyUI MOSS Shift Scheduler v0.9.0**.\n\n- Three schedules: **MOSS Shift Scheduler**, **MOSS Curve Scheduler**, and **MOSS Sigma Scheduler**, available in KSampler's scheduler selector and the dedicated SIGMAS node.\n- Radiance-compatible calculation, original Power Shift defaults, and a fractional-grid variant.\n- Includes the latest **English/Japanese README and the supplied ComfyUI KSampler settings screenshot**.\n- Recommended starting range for MOSS-Image SFT + `lora_latest.safetensors` DMD LoRA: **8–10 steps, CFG 3–5, model shift 5, LoRA strength 0.8**.\n- Personal starting point: **8 steps / CFG 5**, **`dpmpp_sde` or `dpmpp_2m_sde`**, MOSS Shift Scheduler, denoise 1.0. These are adjustable recommendations.\n\n![ComfyUI MOSS Shift Scheduler: 8 steps, CFG 5, dpmpp_sde, denoise 1.0](https://raw.githubusercontent.com/ukr8b3g-cmyk/ComfyUI-MOSS-Shift-Scheduler/v0.9.0/docs/images/comfyui-moss-shift-settings.png)\n\nInstall under `ComfyUI/custom_nodes` by Git clone or source ZIP, then restart ComfyUI and reload the browser.\nUpdate an existing copy in place; avoid installing a second copy alongside the earlier `ComfyUI-MOSS-Scheduler` development folder.\nSee the [README](https://github.com/ukr8b3g-cmyk/ComfyUI-MOSS-Shift-Scheduler/blob/v0.9.0/README.md) for usage, numerical differences, license and provenance.\n\nCPU validation covers compatibility with the pinned MIT reference, real ComfyUI schedule/KSampler handling, registration, and offline migration of older names. It does not establish GPU image-quality or speed comparisons.\nPractical image testing has mainly used MOSS-Image SFT with the DMD acceleration LoRA. Generation without that LoRA and other models have had limited or no practical testing.\n\n## 日本語\n\n**ComfyUI MOSS Shift Scheduler v0.9.0** の初回Releaseです。\n\n- **MOSS Shift Scheduler／MOSS Curve Scheduler／MOSS Sigma Scheduler** の3方式。KSamplerのscheduler選択と、SIGMASを出力する専用ノードから使えます。\n- Radiance互換、元のPower Shift既定値、点の配置を変えた方式を収録しています。\n- **今回更新した日英READMEと、提供されたComfyUIのKSampler設定画像を含みます。**\n- MOSS-Image SFT＋`lora_latest.safetensors` DMD高速化LoRAの推奨開始値は、**8〜10 steps／CFG 3〜5／モデルShift 5／LoRA強度0.8**。\n- 個人の開始例は **8 steps・CFG 5**、**`dpmpp_sde` または `dpmpp_2m_sde`**、MOSS Shift Scheduler、denoise 1.0です。固定・必須ではなく調整できます。\n\n`ComfyUI/custom_nodes` 内へGit cloneまたはSource code ZIPで導入し、ComfyUIを再起動してブラウザーを再読み込みしてください。\n既存コピーは同じ場所で更新し、旧開発フォルダー `ComfyUI-MOSS-Scheduler` との二重導入を避けてください。\n使い方・数値の違い・MITライセンスと由来は [日本語README](https://github.com/ukr8b3g-cmyk/ComfyUI-MOSS-Shift-Scheduler/blob/v0.9.0/README.md#日本語) を参照してください。\n\nCPUで元のMIT版との互換性、ComfyUI側のスケジュール・KSampler処理、登録、旧名移行を検証しています。GPU画質・速度の独立比較ではありません。\n主な実使用はMOSS-Image SFT＋DMD高速化LoRAで、LoRAなしの通常生成や他モデルでの実使用はほぼ未検証です。\n",
+                  "draft": False,
+                  "prerelease": False,
+                  "make_latest": "true",
+              })
+          
+          ref = api("/git/ref/tags/" + tag)
+          obj = ref["object"]
+          if obj["type"] == "tag":
+              obj = api("/git/tags/" + obj["sha"])["object"]
+          assert obj["type"] == "commit" and obj["sha"] == target, "Release tag target mismatch"
+          assert release["tag_name"] == tag and not release["draft"] and not release["prerelease"]
+          print(release["html_url"])
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as output:
+              output.write("Published " + release["html_url"] + "\nTarget: " + target + "\n")
+          PY
