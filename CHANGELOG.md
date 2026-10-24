@@ -17,3 +17,6 @@
   The upstream LoRA author's 0.7 recommendation remains separately attributed.
 - Added bilingual comparison tables covering curve settings, grid placement, end handling,
   and CPU-calculated sigma values for the 10-step / shift-5 example.
+- Updated current recommendations to 8–10 steps, CFG 3–5 and model shift 5, aligned with the Forge Neo port.
+  Personal starting point: 8 steps / CFG 5 / shift 5 / LoRA strength 0.8.
+  Faster generation and slightly more detail at 8 steps are the owner's observations, not benchmark results.

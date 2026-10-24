@@ -80,13 +80,16 @@ Switching a choice does not load a LoRA or change steps, CFG, sampler, SLG, or m
 | Model | [MOSS-Image SFT](https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT) |
 | Acceleration LoRA | [lodestones/MOSS-Image-SFT-8-steps-dmd](https://huggingface.co/lodestones/MOSS-Image-SFT-8-steps-dmd), specifically [`lora_latest.safetensors`](https://huggingface.co/lodestones/MOSS-Image-SFT-8-steps-dmd/blob/main/lora_latest.safetensors) |
 | LoRA strength | **0.8 as this project's recommended starting point**, adjustable rather than mandatory |
-| Sampler | **`dpmpp_sde`** |
+| Sampler | **`dpmpp_sde`** or **`dpmpp_2m_sde`** |
 | Scheduler | **MOSS Shift Scheduler**; compare the other two choices if useful |
-| Steps | **Start at 10 and adjust**; not fixed to 10 |
-| CFG | **3.0** |
+| Steps | **8–10; start at 8** and adjust |
+| CFG | **3–5; personal starting point: 5** |
+| Model shift | **5**; the native ComfyUI MOSS loader already uses this default without a separate shift node |
 | Denoise | **1.0** for this text-to-image example |
 
-These project recommendations follow the latest user-provided use case: 10 steps and LoRA strength 0.8.
+The current personal starting point is **8 steps, CFG 5, model shift 5 and LoRA strength 0.8**.
+The owner reports faster generation and slightly more detail at 8 steps than at 10 in their use case.
+This is a personal observation, not a controlled speed or quality benchmark; the values remain adjustable.
 The LoRA author recommends strength 0.7 for `lora_latest.safetensors`; that is the upstream reference,
 not the project's current 0.8 recommendation. Adjust the strength to suit the output.
 Do not confuse it with the separate `lora.safetensors` file and its different strength recommendation.
@@ -94,19 +97,18 @@ Do not confuse it with the separate `lora.safetensors` file and its different st
 This follows the combinations in [this sampler comparison report](https://www.reddit.com/r/StableDiffusion/comments/1x86z9k/moss_image_samplers_and_schedulers/):
 `dpmpp_sde / radiance_shift` and `dpmpp_2m_sde / radiance_shift`.
 The report evaluates prompt adherence but does **not** state the actual generation step count.
-The 10-step recommendation above comes from this project's latest user-provided use case.
+The 8-step starting point above follows the owner's latest recommendation.
 Good prompt adherence has also been reported in that use case; this is an observation, not a controlled benchmark.
-The latest supplied screenshots confirm MOSS Shift Scheduler, `dpmpp_sde`, 10 steps, CFG 3,
-denoise 1.0 and LoRA strength 0.80.
-`dpmpp_2m_sde` remains an alternative from the referenced report, not the primary project recommendation
-or an independently verified GPU comparison here.
+Earlier supplied screenshots show MOSS Shift Scheduler, `dpmpp_sde`, 10 steps, CFG 3,
+denoise 1.0 and LoRA strength 0.80. The current recommendation above supersedes that example.
+Both named SDE samplers are recommended candidates; no independent GPU comparison between them was performed here.
 
 ## Usage and changes from upstream
 
 - In **KSampler**, choose one of the three full names under scheduler. KSampler's own default selection is unchanged.
 - With the dedicated **MOSS Shift Scheduler** node, connect the same MODEL used by the sampler,
   and connect SIGMAS to SamplerCustom / SamplerCustomAdvanced.
-  The node defaults to MOSS Shift Scheduler, 25 steps and denoise 1.0; the recommended 10 steps are set manually.
+  The node defaults to MOSS Shift Scheduler, 25 steps and denoise 1.0; the recommended 8-step starting point is set manually.
 - Denoise below 1.0 uses the tail of a longer schedule; zero returns an empty schedule.
 - Some samplers (`dpm_2`, `dpm_2_ancestral`, `uni_pc`, `uni_pc_bh2`) add Core penultimate-sigma handling.
   Their Core KSampler path can differ from passing dedicated SIGMAS directly.
@@ -226,13 +228,16 @@ MOSS Shift Schedulerを基準に選びます。名前は画質の順位ではあ
 | モデル | [MOSS-Image SFT](https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT) |
 | 高速化LoRA | [lodestones/MOSS-Image-SFT-8-steps-dmd](https://huggingface.co/lodestones/MOSS-Image-SFT-8-steps-dmd) の [`lora_latest.safetensors`](https://huggingface.co/lodestones/MOSS-Image-SFT-8-steps-dmd/blob/main/lora_latest.safetensors) |
 | LoRA強度 | **0.8を本プロジェクトの推奨開始値に**。固定・必須ではなく調整可能です |
-| サンプラー | **`dpmpp_sde`** |
+| サンプラー | **`dpmpp_sde`** または **`dpmpp_2m_sde`** |
 | スケジューラー | **MOSS Shift Scheduler**を基準に、ほかの2方式とも比較可能 |
-| ステップ | **10を起点に調整**。10固定ではありません |
-| CFG | **3.0** |
+| ステップ | **8〜10。まず8を起点に調整** |
+| CFG | **3〜5。個人の開始例は5** |
+| モデルShift | **5**。ComfyUI標準のMOSSローダーは、別の変更ノードがなくても既定値5を使います |
 | denoise | **1.0**（txt2imgの例） |
 
-本プロジェクトの推奨値は、最新のユーザー使用例に合わせた10 steps・LoRA強度0.8です。
+現在の個人の開始例は **8 steps・CFG 5・モデルShift 5・LoRA強度0.8** です。
+作者の実使用では「10ステップより8ステップの方が速く、細部もややよかった」との所感があります。
+速度や画質の比較ベンチマークではなく、各値は調整可能です。
 配布元の`lora_latest.safetensors`推奨強度は0.7で、こちらは配布元の参考値として区別します。
 本プロジェクトの推奨は0.8ですが、出力に合わせて調整してください。
 別ファイル`lora.safetensors`の推奨強度とは区別してください。
@@ -240,18 +245,17 @@ MOSS Shift Schedulerを基準に選びます。名前は画質の順位ではあ
 この使用例は[サンプラー比較投稿](https://www.reddit.com/r/StableDiffusion/comments/1x86z9k/moss_image_samplers_and_schedulers/)の
 `dpmpp_sde / radiance_shift`、`dpmpp_2m_sde / radiance_shift`に準拠しています。
 元投稿ではプロンプト追従性が評価されていますが、実際の生成ステップ数は不明です。
-上記の10ステップは最新のユーザー使用例に基づきます。
+上記の8ステップという開始値は、作者の最新の推奨に基づきます。
 その実使用でも「プロンプトへの追従性がよい」との評価がありましたが、比較ベンチマークではありません。
-最新の提供画像ではMOSS Shift Scheduler、dpmpp_sde、10 steps、CFG 3、denoise 1.0、
-LoRA強度0.80を確認しています。
-dpmpp_2m_sdeは参考投稿にある代替候補として残しますが、本プロジェクトの主な推奨はdpmpp_sdeです。
-こちらで独立したGPU比較を行ったものではありません。
+以前の提供画像ではMOSS Shift Scheduler、dpmpp_sde、10 steps、CFG 3、denoise 1.0、
+LoRA強度0.80を確認しており、現在の推奨値は上記の設定に更新しています。
+両SDEサンプラーを推奨候補としますが、こちらで両者の独立したGPU比較を行ったものではありません。
 
 ### 使用方法・元実装との差
 
 - KSamplerではschedulerから上記のフルネームを選びます。KSampler自身の初期選択は変更しません。
 - 専用ノードでは同じMODELをサンプラーにも接続し、SIGMASをSamplerCustom / SamplerCustomAdvancedへ渡します。
-  ノード初期値はMOSS Shift Scheduler、25 steps、denoise=1.0です。推奨の10 stepsは手動設定します。
+  ノード初期値はMOSS Shift Scheduler、25 steps、denoise=1.0です。推奨開始値の8 stepsは手動設定します。
 - denoiseを小さくすると長いスケジュールの末尾を使います。0は空のSIGMASです。
 - `dpm_2`、`dpm_2_ancestral`、`uni_pc`、`uni_pc_bh2` ではCoreの追加末尾処理があるため、
   専用SIGMASを渡す経路との差があります。時刻の重複除去で出力段数が減る場合もあります。
