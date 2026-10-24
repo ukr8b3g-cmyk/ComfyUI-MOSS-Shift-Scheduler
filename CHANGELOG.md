@@ -15,3 +15,5 @@
 - Updated the documented project starting point from 8 steps / LoRA strength 0.7 to
   10 steps / strength 0.8, with dpmpp_sde, CFG 3, MOSS Shift Scheduler and denoise 1.0.
   The upstream LoRA author's 0.7 recommendation remains separately attributed.
+- Added bilingual comparison tables covering curve settings, grid placement, end handling,
+  and CPU-calculated sigma values for the 10-step / shift-5 example.

@@ -41,11 +41,34 @@ This repository is not yet registered in ComfyUI Manager/Comfy Registry; Git clo
 
 The dedicated node and Core KSampler selectors use **exactly the same full names**.
 
-| Choice | Calculation |
-|---|---|
-| **MOSS Shift Scheduler** — default | Original MIT Radiance Shift calculation: power 2.4, midpoint shift 0.98, steps+1 grid, then removal of the penultimate sigma |
-| **MOSS Curve Scheduler** | Original Power Shift defaults: power 2.0, midpoint shift 1.0 |
-| **MOSS Sigma Scheduler** | Power 2.4, midpoint shift 0.98, with timestep placement `j / (steps + 0.75)` |
+| Choice | power | midpoint_shift | Grid before curve shaping (`N` = steps) | End handling |
+|---|---:|---:|---|---|
+| **MOSS Shift Scheduler** — default | **2.4** | **0.98** | `j / (N + 1)`; generate N+1 candidates | Append zero, then remove the penultimate sigma; original Radiance-compatible calculation |
+| **MOSS Curve Scheduler** | **2.0** | **1.00** | `j / N`; generate N candidates | Keep the last nonzero value and append zero; original Power Shift defaults |
+| **MOSS Sigma Scheduler** | **2.4** | **0.98** | `j / (N + 0.75)`; generate N candidates | Keep the last nonzero value and append zero; fractional-grid variant |
+
+`power` and `midpoint_shift` shape the curve; the grid determines where each step samples it.
+These are fixed settings of each choice, not CFG or the model's flow shift.
+Thus Shift and Sigma share the curve settings but choose slightly different points.
+Curve changes both the curve settings and the placement. All three finish at zero.
+
+### Numerical comparison at 10 steps
+
+CPU-calculated example: **10 steps, denoise 1.0, a 1,000-point flow table with shift 5**, rounded to 4 decimals.
+The table uses the same shift transform as the MOSS default; no model weights or images were generated.
+Values are scheduled noise levels (`sigma`), not image-quality scores.
+
+| Choice | Start | After step 1 | After step 5 | Before final step | End |
+|---|---:|---:|---:|---:|---:|
+| **MOSS Shift Scheduler** | 1.0000 | 0.9984 | 0.9085 | **0.3494** | 0.0000 |
+| **MOSS Curve Scheduler** | 1.0000 | 0.9959 | 0.8656 | **0.1611** | 0.0000 |
+| **MOSS Sigma Scheduler** | 1.0000 | 0.9982 | 0.9024 | **0.2943** | 0.0000 |
+
+In this example, Shift keeps higher noise levels at the displayed intermediate points;
+Curve reaches lower levels sooner and has a smaller final jump to zero.
+Sigma stays close to Shift while making that final jump slightly smaller.
+This may change composition and finishing detail, but which looks better needs image comparison.
+The numbers change with the model's sigma table, flow shift and step count.
 
 MOSS Shift Scheduler is the baseline choice. The names do not rank image quality.
 Switching a choice does not load a LoRA or change steps, CFG, sampler, SLG, or model shift.
@@ -164,11 +187,34 @@ ComfyUI Manager / Comfy Registryには未登録です。現時点の導入方法
 
 KSamplerと専用ノードで、名前を省略せず同じ表記で使います。
 
-| 選択名 | 計算 |
-|---|---|
-| **MOSS Shift Scheduler**（初期選択） | 元のRadiance関数と同じ。power=2.4、midpoint_shift=0.98、steps+1で計算しゼロ直前の点を削除 |
-| **MOSS Curve Scheduler** | 元のPower Shiftの既定値。power=2.0、midpoint_shift=1.0 |
-| **MOSS Sigma Scheduler** | power=2.4、midpoint_shift=0.98、時刻を `j / (steps + 0.75)` に配置 |
+| 選択名 | power | midpoint_shift | 曲線を変形する前の点の配置（N＝steps） | 末尾の処理 |
+|---|---:|---:|---|---|
+| **MOSS Shift Scheduler**（初期選択） | **2.4** | **0.98** | `j / (N + 1)`。N+1点の候補を計算 | ゼロを追加し、その直前の点を削除。元のRadiance互換 |
+| **MOSS Curve Scheduler** | **2.0** | **1.00** | `j / N`。N点の候補を計算 | 最後の非ゼロ値を残してゼロを追加。元のPower Shift既定値 |
+| **MOSS Sigma Scheduler** | **2.4** | **0.98** | `j / (N + 0.75)`。N点の候補を計算 | 最後の非ゼロ値を残してゼロを追加。配置を調整した派生方式 |
+
+powerとmidpoint_shiftは曲線の形、点の配置はその曲線のどこを各ステップで使うかを決めます。
+現在は方式ごとに固定している内部設定で、CFGやモデル側のflow shiftとは別です。
+ShiftとSigmaは曲線の設定値が同じで、使う点の位置が少し違います。
+Curveは曲線の設定値と配置の両方が異なります。最後は3方式ともゼロになります。
+
+#### 10ステップでの数値比較
+
+**10 steps、denoise 1.0、shift 5の1,000点flowテーブル**でCPU計算した例です。小数第4位まで表示しています。
+MOSS既定と同じshift変換を使った例で、モデルの重みを読み込んだ生成テストではありません。
+数値はスケジュール上のノイズ量（sigma）で、画質の点数ではありません。
+
+| 選択名 | 開始 | 1ステップ後 | 5ステップ後 | 最終ステップ直前 | 終了 |
+|---|---:|---:|---:|---:|---:|
+| **MOSS Shift Scheduler** | 1.0000 | 0.9984 | 0.9085 | **0.3494** | 0.0000 |
+| **MOSS Curve Scheduler** | 1.0000 | 0.9959 | 0.8656 | **0.1611** | 0.0000 |
+| **MOSS Sigma Scheduler** | 1.0000 | 0.9982 | 0.9024 | **0.2943** | 0.0000 |
+
+この例では、Shiftは表の途中時点で高めのノイズ量を保ちます。
+Curveはより早く低いノイズ量へ進み、最後のゼロまでの飛び幅も小さめです。
+SigmaはShiftに近い配分で、最後の飛び幅を少し小さくしています。
+構図や仕上がりが変わる可能性がありますが、どれが高画質かは実画像での比較が必要です。
+モデルのsigmaテーブル、flow shift、ステップ数を変えると、この数値も変わります。
 
 MOSS Shift Schedulerを基準に選びます。名前は画質の順位ではありません。
 選択を変えてもLoRA、steps、CFG、サンプラー、SLG、モデルのshiftは自動変更しません。
