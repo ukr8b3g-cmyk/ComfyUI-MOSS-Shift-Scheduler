@@ -87,6 +87,11 @@ Switching a choice does not load a LoRA or change steps, CFG, sampler, SLG, or m
 | Model shift | **5**; the native ComfyUI MOSS loader already uses this default without a separate shift node |
 | Denoise | **1.0** for this text-to-image example |
 
+![ComfyUI KSampler using MOSS Shift Scheduler: 8 steps, CFG 5, dpmpp_sde, denoise 1.0](docs/images/comfyui-moss-shift-settings.png)
+
+The supplied KSampler screenshot shows **8 steps, CFG 5, `dpmpp_sde`, MOSS Shift Scheduler and denoise 1.0**.
+Model shift and LoRA strength are not shown; use the recommendations in the table above.
+
 The current personal starting point is **8 steps, CFG 5, model shift 5 and LoRA strength 0.8**.
 The owner reports faster generation and slightly more detail at 8 steps than at 10 in their use case.
 This is a personal observation, not a controlled speed or quality benchmark; the values remain adjustable.
@@ -99,8 +104,6 @@ This follows the combinations in [this sampler comparison report](https://www.re
 The report evaluates prompt adherence but does **not** state the actual generation step count.
 The 8-step starting point above follows the owner's latest recommendation.
 Good prompt adherence has also been reported in that use case; this is an observation, not a controlled benchmark.
-Earlier supplied screenshots show MOSS Shift Scheduler, `dpmpp_sde`, 10 steps, CFG 3,
-denoise 1.0 and LoRA strength 0.80. The current recommendation above supersedes that example.
 Both named SDE samplers are recommended candidates; no independent GPU comparison between them was performed here.
 
 ## Usage and changes from upstream
@@ -235,6 +238,11 @@ MOSS Shift Schedulerを基準に選びます。名前は画質の順位ではあ
 | モデルShift | **5**。ComfyUI標準のMOSSローダーは、別の変更ノードがなくても既定値5を使います |
 | denoise | **1.0**（txt2imgの例） |
 
+![ComfyUIのKSampler設定例：8 steps、CFG 5、dpmpp_sde、MOSS Shift Scheduler、denoise 1.0](docs/images/comfyui-moss-shift-settings.png)
+
+提供画像のKSamplerは **8 steps・CFG 5・`dpmpp_sde`・MOSS Shift Scheduler・denoise 1.0** です。
+モデルShiftとLoRA強度は画像には表示されていないため、上の推奨表を参照してください。
+
 現在の個人の開始例は **8 steps・CFG 5・モデルShift 5・LoRA強度0.8** です。
 作者の実使用では「10ステップより8ステップの方が速く、細部もややよかった」との所感があります。
 速度や画質の比較ベンチマークではなく、各値は調整可能です。
@@ -247,8 +255,6 @@ MOSS Shift Schedulerを基準に選びます。名前は画質の順位ではあ
 元投稿ではプロンプト追従性が評価されていますが、実際の生成ステップ数は不明です。
 上記の8ステップという開始値は、作者の最新の推奨に基づきます。
 その実使用でも「プロンプトへの追従性がよい」との評価がありましたが、比較ベンチマークではありません。
-以前の提供画像ではMOSS Shift Scheduler、dpmpp_sde、10 steps、CFG 3、denoise 1.0、
-LoRA強度0.80を確認しており、現在の推奨値は上記の設定に更新しています。
 両SDEサンプラーを推奨候補としますが、こちらで両者の独立したGPU比較を行ったものではありません。
 
 ### 使用方法・元実装との差
