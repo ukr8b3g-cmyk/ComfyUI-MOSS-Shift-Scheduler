@@ -83,16 +83,17 @@ Switching a choice does not load a LoRA or change steps, CFG, sampler, SLG, or m
 | Sampler | **`dpmpp_sde`** or **`dpmpp_2m_sde`** |
 | Scheduler | **MOSS Shift Scheduler**; compare the other two choices if useful |
 | Steps | **8–10; start at 8** and adjust |
-| CFG | **3–5; personal starting point: 5** |
+| CFG | **3 as the recommended starting point; adjust to taste** |
 | Model shift | **5**; the native ComfyUI MOSS loader already uses this default without a separate shift node |
 | Denoise | **1.0** for this text-to-image example |
 
-![ComfyUI KSampler using MOSS Shift Scheduler: 8 steps, CFG 5, dpmpp_sde, denoise 1.0](docs/images/comfyui-moss-shift-settings.png)
+![ComfyUI KSampler using MOSS Shift Scheduler: 8 steps, CFG 3, dpmpp_sde, denoise 1.0](docs/images/comfyui-moss-shift-settings.png)
 
-The supplied KSampler screenshot shows **8 steps, CFG 5, `dpmpp_sde`, MOSS Shift Scheduler and denoise 1.0**.
+The KSampler reference image shows **8 steps, CFG 3, `dpmpp_sde`, MOSS Shift Scheduler and denoise 1.0**.
+The CFG value in this reference image was edited to show the recommended starting point of 3.
 Model shift and LoRA strength are not shown; use the recommendations in the table above.
 
-The current personal starting point is **8 steps, CFG 5, model shift 5 and LoRA strength 0.8**.
+The current personal starting point is **8 steps, CFG 3, model shift 5 and LoRA strength 0.8**.
 The owner reports faster generation and slightly more detail at 8 steps than at 10 in their use case.
 This is a personal observation, not a controlled speed or quality benchmark; the values remain adjustable.
 The LoRA author recommends strength 0.7 for `lora_latest.safetensors`; that is the upstream reference,
@@ -234,16 +235,17 @@ MOSS Shift Schedulerを基準に選びます。名前は画質の順位ではあ
 | サンプラー | **`dpmpp_sde`** または **`dpmpp_2m_sde`** |
 | スケジューラー | **MOSS Shift Scheduler**を基準に、ほかの2方式とも比較可能 |
 | ステップ | **8〜10。まず8を起点に調整** |
-| CFG | **3〜5。個人の開始例は5** |
+| CFG | **3を推奨開始値に。出力に合わせて調整可能** |
 | モデルShift | **5**。ComfyUI標準のMOSSローダーは、別の変更ノードがなくても既定値5を使います |
 | denoise | **1.0**（txt2imgの例） |
 
-![ComfyUIのKSampler設定例：8 steps、CFG 5、dpmpp_sde、MOSS Shift Scheduler、denoise 1.0](docs/images/comfyui-moss-shift-settings.png)
+![ComfyUIのKSampler設定例：8 steps、CFG 3、dpmpp_sde、MOSS Shift Scheduler、denoise 1.0](docs/images/comfyui-moss-shift-settings.png)
 
-提供画像のKSamplerは **8 steps・CFG 5・`dpmpp_sde`・MOSS Shift Scheduler・denoise 1.0** です。
+KSamplerの参考画像は **8 steps・CFG 3・`dpmpp_sde`・MOSS Shift Scheduler・denoise 1.0** です。
+推奨開始値に合わせて、参考画像のCFG欄を3に編集しています。
 モデルShiftとLoRA強度は画像には表示されていないため、上の推奨表を参照してください。
 
-現在の個人の開始例は **8 steps・CFG 5・モデルShift 5・LoRA強度0.8** です。
+現在の個人の開始例は **8 steps・CFG 3・モデルShift 5・LoRA強度0.8** です。
 作者の実使用では「10ステップより8ステップの方が速く、細部もややよかった」との所感があります。
 速度や画質の比較ベンチマークではなく、各値は調整可能です。
 配布元の`lora_latest.safetensors`推奨強度は0.7で、こちらは配布元の参考値として区別します。
