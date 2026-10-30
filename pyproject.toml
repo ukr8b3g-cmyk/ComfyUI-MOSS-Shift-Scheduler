@@ -8,3 +8,7 @@ license = { file = "LICENSE" }
 [project.urls]
 Repository = "https://github.com/ukr8b3g-cmyk/ComfyUI-MOSS-Shift-Scheduler"
 Issues = "https://github.com/ukr8b3g-cmyk/ComfyUI-MOSS-Shift-Scheduler/issues"
+
+[tool.comfy]
+PublisherId = "ukr8b3g-cmyk"
+DisplayName = "MOSS Shift Scheduler"
